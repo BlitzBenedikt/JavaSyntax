@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Syntax Rätsel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .puzzle-container {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            width: 90%;
+        }
+        .puzzle h2 {
+            margin-top: 0;
+        }
+        .puzzle p {
+            margin-bottom: 15px;
+        }
+        .puzzle pre {
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 3px;
+            white-space: pre-wrap; /* Wichtig für Zeilenumbrüche im Code */
+            word-wrap: break-word; /* Stellt sicher, dass lange Zeilen umbrechen */
+        }
+        .puzzle input[type="text"] {
+            width: calc(100% - 22px); /* Berücksichtigt Padding und Border */
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .puzzle button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .puzzle button:hover {
+            background-color: #218838;
+        }
+        .puzzle button.next-btn {
+            background-color: #007bff;
+        }
+        .puzzle button.next-btn:hover {
+            background-color: #0056b3;
+        }
+        .puzzle button.solution-btn {
+            background-color: #ffc107; /* Gelb für Warnung/Hinweis */
+            color: black;
+        }
+        .puzzle button.solution-btn:hover {
+            background-color: #e0a800;
+        }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Standardmäßig ausgeblendet */
+            position: fixed; /* Bleibt an Ort und Stelle */
+            z-index: 1000; /* Über anderen Elementen */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Scrollen ermöglichen, falls Inhalt zu lang */
+            background-color: rgba(0,0,0,0.5); /* Halbtransparenter Hintergrund */
+            padding-top: 60px; /* Abstand von oben */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 85%;
+            max-width: 550px;
+            border-radius: 8px;
+            text-align: left;
+            position: relative;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+        }
+
+        .modal-content p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .modal-content button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 25px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .modal-content button:hover {
+            background-color: #218838;
+        }
+
+        .close-btn { /* Optionaler Schließen-Button oben rechts */
+            color: #aaa;
+            float: right;
+            font-size: 30px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Java Syntax Rätsel</h1>
+
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModalBtn">&times;</span>
+            <h2>Willkommen zurück!</h2>
+            <p>Hey! Willkommen zurück zur ersten CodeClub-Stunde nach den Ferien. Ich hoffe, sie waren schön für euch.</p>
+            <p>Heute wiederholen wir noch mal ein bisschen die Java-Syntax, da dies die Grundlage für einen funktionierenden Code ist.</p>
+            <p>Falls ihr es nicht hinbekommt, fragt mal eure Nachbarn. Danach dürft ihr auf "Lösung anzeigen" drücken.</p>
+            <p>Viel Spaß beim Knobeln!</p>
+            <button id="startPuzzlesBtn">Rätsel starten</button>
+        </div>
+    </div>
+
+    <div id="puzzle-area">
+        <!-- Puzzles werden hier per JavaScript eingefügt -->
+    </div>
+
+    <script>
+        const puzzles = [
+            {
+                id: "puzzle1",
+                title: "Aufgabe 1: Fehlendes Semikolon",
+                description: "Im folgenden Java-Code fehlt ein wichtiges Zeichen am Ende einer Anweisung. Finde die Zeile und korrigiere sie. Bearbeite die vorgegebene Zeile.",
+                codeSnippet: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hallo Welt"\n    }\n}`,
+                lineToEdit: 'System.out.println("Hallo Welt"',
+                correctAnswer: 'System.out.println("Hallo Welt");',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle2",
+                title: "Aufgabe 2: Falscher Datentyp",
+                description: "Hier wurde versucht, eine Ganzzahl zu deklarieren, aber der Datentyp ist falsch geschrieben. Korrigiere die Deklaration in der vorgegebenen Zeile.",
+                codeSnippet: `public class Variablen {\n    public static void main(String[] args) {\n        Int zahl = 10;\n        System.out.println("Die Zahl ist: " + zahl);\n    }\n}`,
+                lineToEdit: 'Int zahl = 10;',
+                correctAnswer: 'int zahl = 10;',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle3",
+                title: "Aufgabe 3: Fehlende Klammer",
+                description: "In dieser Methode fehlt eine schließende geschweifte Klammer. Wo gehört sie hin? Gib die Zeile ein, die die Methode korrekt abschließt (die schließende Klammer, eventuell mit korrekter Einrückung).",
+                codeSnippet: `public class Methode {\n    public static void sagHallo() {\n        System.out.println("Hallo von der Methode!");\n    // Wo fehlt die Klammer?\n}`,
+                correctAnswer: '    }',
+                placeholder: "Fehlende Klammer oder Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle4",
+                title: "Aufgabe 4: Ungültiger Methodenname für den Start",
+                description: "Die 'main'-Methode ist der Startpunkt jedes Java-Programms. Hier hat sich ein Fehler in der Methodensignatur eingeschlichen. Korrigiere die Signatur in der vorgegebenen Zeile.",
+                codeSnippet: `public class StartFehler {\n    public static void mainProgram(String[] args) {\n        System.out.println("Programm startet!");\n    }\n}`,
+                lineToEdit: 'public static void mainProgram(String[] args) {',
+                correctAnswer: 'public static void main(String[] args) {',
+                placeholder: "Korrigierte Methodensignatur hier eingeben..."
+            },
+            {
+                id: "puzzle5",
+                title: "Aufgabe 5: Fehler bei der String-Verknüpfung",
+                description: "Zwei Zeichenketten sollen verbunden und ausgegeben werden. In der Zeile mit 'System.out.println' ist ein Fehler. Korrigiere ihn.",
+                codeSnippet: `public class TextVerbindung {\n    public static void main(String[] args) {\n        String teil1 = "Java ist ";\n        String teil2 = "toll!";\n        System.out.println(teil1 teil2);\n    }\n}`,
+                lineToEdit: 'System.out.println(teil1 teil2);',
+                correctAnswer: 'System.out.println(teil1 + teil2);',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle6",
+                title: "Aufgabe 6: Falsche Array-Deklaration",
+                description: "Ein Array von Zahlen soll deklariert werden. Die Syntax ist jedoch nicht korrekt. Korrigiere die Zeile.",
+                codeSnippet: `public class ArrayFehler {\n    public static void main(String[] args) {\n        int zahlen = new int[5];\n        System.out.println("Array erstellt.");\n    }\n}`,
+                lineToEdit: 'int zahlen = new int[5];',
+                correctAnswer: 'int[] zahlen = new int[5];',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle7",
+                title: "Aufgabe 7: Bedingung in if-Anweisung",
+                description: "Die Bedingung in dieser if-Anweisung ist nicht korrekt geklammert. Korrigiere die Zeile.",
+                codeSnippet: `public class BedingungFehler {\n    public static void main(String[] args) {\n        int alter = 18;\n        if alter >= 18 {\n            System.out.println("Volljährig");\n        }\n    }\n}`,
+                lineToEdit: 'if alter >= 18 {',
+                correctAnswer: 'if (alter >= 18) {',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle8",
+                title: "Aufgabe 8: Fehler in der for-Schleife",
+                description: "Diese for-Schleife zählt nicht richtig. Eines der Semikolons ist falsch platziert oder fehlt. Korrigiere die Schleifendefinition.",
+                codeSnippet: `public class SchleifenFehler {\n    public static void main(String[] args) {\n        for (int i = 0; i < 5 i++) {\n            System.out.println("Durchlauf: " + i);\n        }\n    }\n}`,
+                lineToEdit: 'for (int i = 0; i < 5 i++) {',
+                correctAnswer: 'for (int i = 0; i < 5; i++) {',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle9",
+                title: "Aufgabe 9: Objektinstanziierung",
+                description: "Es soll ein Objekt der (vereinfachten) Klasse 'Scanner' erstellt werden, aber das Schlüsselwort zur Objekterzeugung fehlt. Korrigiere die Zeile.",
+                codeSnippet: `// Angenommen, es gibt eine Klasse Scanner irgendwo:\n// class Scanner { public Scanner(Object in) { /* ... */ } }\n// import java.io.InputStream; // Nur zur Veranschaulichung\n\npublic class ObjektFehler {\n    public static void main(String[] args) {\n        Scanner meinScanner = Scanner(System.in);\n        System.out.println("Scanner erstellt.");\n    }\n}`,
+                lineToEdit: 'Scanner meinScanner = Scanner(System.in);',
+                correctAnswer: 'Scanner meinScanner = new Scanner(System.in);',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle10",
+                title: "Aufgabe 10: Kommentarfehler",
+                description: "Hier wurde versucht, einen mehrzeiligen Kommentar zu starten, aber die Syntax ist für einen einzeiligen Kommentar. Korrigiere den Anfang des Kommentars, sodass er mehrzeilig wird.",
+                codeSnippet: `public class KommentarFehler {\n    public static void main(String[] args) {\n        // Dies sollte ein\n           mehrzeiliger Kommentar sein.\n        System.out.println("Code nach Kommentar.");\n    }\n}`,
+                lineToEdit: '// Dies sollte ein',
+                correctAnswer: '/* Dies sollte ein',
+                placeholder: "Korrigierten Kommentarbeginn hier eingeben..."
+            },
+            {
+                id: "puzzle11",
+                title: "Aufgabe 11: Groß-/Kleinschreibung bei Datentypen",
+                description: "Java achtet genau auf Groß- und Kleinschreibung. Der Datentyp für Zeichenketten ist hier falsch geschrieben. Korrigiere die Zeile.",
+                codeSnippet: `public class TypFehler {\n    public static void main(String[] args) {\n        string name = "Java";\n        System.out.println(name);\n    }\n}`,
+                lineToEdit: 'string name = "Java";',
+                correctAnswer: 'String name = "Java";',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle12",
+                title: "Aufgabe 12: Fehlende Klammern beim Methodenaufruf",
+                description: "Um eine Methode aufzurufen, benötigt man Klammern, auch wenn keine Argumente übergeben werden. Hier wird die Länge eines Strings falsch abgefragt. Korrigiere den Aufruf.",
+                codeSnippet: `public class AufrufFehler {\n    public static void main(String[] args) {\n        String text = "Hallo";\n        int laenge = text.length;\n        System.out.println("Länge: " + laenge);\n    }\n}`,
+                lineToEdit: 'int laenge = text.length;',
+                correctAnswer: 'int laenge = text.length();',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle13",
+                title: "Aufgabe 13: Falsches Boolean-Literal",
+                description: "Wahrheitswerte (Booleans) werden in Java klein geschrieben. Korrigiere das Literal.",
+                codeSnippet: `public class BooleanFehler {\n    public static void main(String[] args) {\n        boolean istSonnig = True;\n        if (istSonnig) {\n            System.out.println("Sonne scheint!");\n        }\n    }\n}`,
+                lineToEdit: 'boolean istSonnig = True;',
+                correctAnswer: 'boolean istSonnig = true;',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle14",
+                title: "Aufgabe 14: Falsche Anführungszeichen für char",
+                description: "Einzelne Zeichen (char) werden in Java mit einfachen Anführungszeichen deklariert, nicht mit doppelten. Korrigiere die Zeile.",
+                codeSnippet: `public class CharFehler {\n    public static void main(String[] args) {\n        char initial = "J";\n        System.out.println("Initial: " + initial);\n    }\n}`,
+                lineToEdit: 'char initial = "J";',
+                correctAnswer: 'char initial = \'J\';',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle15",
+                title: "Aufgabe 15: Konstruktorname",
+                description: "Der Name eines Konstruktors muss immer genau dem Klassennamen entsprechen. Korrigiere den Konstruktornamen.",
+                codeSnippet: `public class Fahrzeug {\n    String modell;\n    public Wagen(String modell) { // Fehler hier\n        this.modell = modell;\n    }\n    // public static void main(String[] args) {\n    //     Fahrzeug meinAuto = new Fahrzeug("Tesla"); \n    // }\n}`,
+                lineToEdit: 'public Wagen(String modell) {',
+                correctAnswer: 'public Fahrzeug(String modell) {',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle16",
+                title: "Aufgabe 16: Fehlende return-Anweisung",
+                description: "Diese Methode soll eine Zahl zurückgeben (int), aber die 'return'-Anweisung fehlt. Ergänze die Zeile, die den Wert von 'ergebnis' zurückgibt.",
+                codeSnippet: `public class ReturnFehler {\n    public int berechneQuadrat(int zahl) {\n        int ergebnis = zahl * zahl;\n        // Hier fehlt etwas\n    }\n    // public static void main(String[] args) {\n    //     ReturnFehler rf = new ReturnFehler();\n    //     int q = rf.berechneQuadrat(5); \n    // }\n}`,
+                correctAnswer: 'return ergebnis;',
+                placeholder: "Fehlende return-Anweisung hier eingeben..."
+            },
+            {
+                id: "puzzle17",
+                title: "Aufgabe 17: Falscher Array-Zugriff",
+                description: "Auf Elemente eines Arrays greift man mit eckigen Klammern zu, nicht mit runden. Korrigiere den Zugriff.",
+                codeSnippet: `public class ArrayZugriffFehler {\n    public static void main(String[] args) {\n        int[] noten = {1, 2, 3};\n        noten(0) = 4; // Fehler hier\n        System.out.println("Erste Note: " + noten[0]);\n    }\n}`,
+                lineToEdit: 'noten(0) = 4;',
+                correctAnswer: 'noten[0] = 4;',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle18",
+                title: "Aufgabe 18: Falsche 'else if' Syntax",
+                description: "Die Syntax für eine 'else if'-Bedingung ist hier nicht korrekt. Korrigiere die Zeile.",
+                codeSnippet: `public class ElseIfFehler {\n    public static void main(String[] args) {\n        int note = 2;\n        if (note == 1) {\n            System.out.println("Sehr gut");\n        } else (note == 2) { // Fehler hier\n            System.out.println("Gut");\n        }\n    }\n}`,
+                lineToEdit: '} else (note == 2) {',
+                correctAnswer: '} else if (note == 2) {',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle19",
+                title: "Aufgabe 19: String-Vergleich",
+                description: "Strings sollten in Java mit der '.equals()'-Methode verglichen werden, nicht mit '=='. Korrigiere die Bedingung.",
+                codeSnippet: `public class StringVergleichFehler {\n    public static void main(String[] args) {\n        String passwort = "geheim";\n        String eingabe = new String("geheim"); // Sicherstellen, dass es unterschiedliche Objekte sind\n        if (passwort == eingabe) { // Fehler hier\n            System.out.println("Zugriff gewährt");\n        } else {\n            System.out.println("Zugriff verweigert");\n        }\n    }\n}`,
+                lineToEdit: 'if (passwort == eingabe) {',
+                correctAnswer: 'if (passwort.equals(eingabe)) {',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle20",
+                title: "Aufgabe 20: Tippfehler im Import-Statement",
+                description: "Um Klassen aus anderen Paketen zu verwenden, nutzt man 'import'. Hier ist ein Tippfehler im Schlüsselwort. Korrigiere es.",
+                codeSnippet: `impor java.util.Scanner; // Fehler hier\n\npublic class ImportFehler {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        System.out.println("Eingabe: ");\n        String zeile = scanner.nextLine();\n        scanner.close();\n    }\n}`,
+                lineToEdit: 'impor java.util.Scanner;',
+                correctAnswer: 'import java.util.Scanner;',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle21",
+                title: "Aufgabe 21: Reserviertes Wort als Variablenname",
+                description: "Java hat reservierte Schlüsselwörter (wie 'class', 'int', 'public'), die nicht als Variablennamen verwendet werden dürfen. Hier wurde 'class' als Name für eine Ganzzahlvariable gewählt. Ändere den Variablennamen zu etwas Gültigem (z.B. 'meineKlasseZahl').",
+                codeSnippet: `public class KeywordFehler {\n    public static void main(String[] args) {\n        int class = 10; // Fehler hier\n        System.out.println("Wert: " + class);\n    }\n}`,
+                lineToEdit: 'int class = 10;',
+                correctAnswer: 'int meineKlasseZahl = 10;',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle22",
+                title: "Aufgabe 22: Zuweisung statt Vergleich in if-Bedingung",
+                description: "In einer 'if'-Bedingung wird üblicherweise ein Vergleich (mit '==') durchgeführt. Eine einfache Zuweisung ('=') ist hier meist ein Fehler. Korrigiere die Bedingung.",
+                codeSnippet: `public class VergleichFehler {\n    public static void main(String[] args) {\n        int x = 5;\n        if (x = 10) { // Fehler hier: Zuweisung statt Vergleich\n            System.out.println("x ist 10");\n        } else {\n            System.out.println("x ist nicht 10");\n        }\n    }\n}`,
+                lineToEdit: 'if (x = 10) {',
+                correctAnswer: 'if (x == 10) {',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle23",
+                title: "Aufgabe 23: Fehlendes 'static' für Hilfsmethode",
+                description: "Wenn die 'main'-Methode (die immer 'static' ist) eine andere Methode derselben Klasse direkt aufrufen soll, ohne ein Objekt dieser Klasse zu erstellen, muss diese Hilfsmethode ebenfalls 'static' sein. Ergänze das Schlüsselwort.",
+                codeSnippet: `public class StaticMethodFehler {\n    public void gruessen() { // Fehler: von static main aufgerufen\n        System.out.println("Hallo!");\n    }\n    public static void main(String[] args) {\n        gruessen(); \n    }\n}`,
+                lineToEdit: 'public void gruessen() {',
+                correctAnswer: 'public static void gruessen() {',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle24",
+                title: "Aufgabe 24: Typ-Inkompatibilität (double zu int)",
+                description: "Ein 'double'-Wert (Gleitkommazahl) kann nicht ohne Weiteres einer 'int'-Variable (Ganzzahl) zugewiesen werden, da dies zu Informationsverlust führen würde. Korrigiere die Zuweisung durch explizites Casting zu 'int'.",
+                codeSnippet: `public class TypMismatch {\n    public static void main(String[] args) {\n        int ganzZahl;\n        double gleitkommaZahl = 3.14;\n        ganzZahl = gleitkommaZahl; // Fehler hier\n        System.out.println(ganzZahl);\n    }\n}`,
+                lineToEdit: 'ganzZahl = gleitkommaZahl;',
+                correctAnswer: 'ganzZahl = (int) gleitkommaZahl;',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle25",
+                title: "Aufgabe 25: Variable vor Deklaration verwendet",
+                description: "Eine Variable muss deklariert werden (d.h. einen Typ und einen Namen bekommen), bevor sie verwendet werden kann. Hier wird 'nachricht' verwendet, bevor sie deklariert wurde. Deklariere 'nachricht' als String in derselben Zeile.",
+                codeSnippet: `public class UnbekannteVariable {\n    public static void main(String[] args) {\n        nachricht = "Hallo Java"; // Fehler hier\n        System.out.println(nachricht);\n    }\n}`,
+                lineToEdit: 'nachricht = "Hallo Java";',
+                correctAnswer: 'String nachricht = "Hallo Java";',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle26",
+                title: "Aufgabe 26: Falsche Syntax im 'switch case'",
+                description: "Die 'case'-Anweisungen innerhalb eines 'switch'-Blocks enden mit einem Doppelpunkt (':'), nicht mit einem Semikolon (';'). Korrigiere die Zeile.",
+                codeSnippet: `public class SwitchCaseFehler {\n    public static void main(String[] args) {\n        int auswahl = 1;\n        switch (auswahl) {\n            case 1; // Fehler hier\n                System.out.println("Option 1 gewählt");\n                break;\n            default:\n                System.out.println("Andere Option");\n        }\n    }\n}`,
+                lineToEdit: 'case 1;',
+                correctAnswer: 'case 1:',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle27",
+                title: "Aufgabe 27: Wert einer 'final'-Variable ändern",
+                description: "Eine Variable, die mit dem Schlüsselwort 'final' deklariert wurde, ist eine Konstante. Ihr Wert kann nach der ersten Zuweisung nicht mehr geändert werden. Kommentiere die Zeile aus, die versucht, die 'final'-Variable zu ändern.",
+                codeSnippet: `public class FinalFehler {\n    public static void main(String[] args) {\n        final int MAX_ANZAHL = 10;\n        // MAX_ANZAHL = 20; // Diese Zeile verursacht einen Fehler\n        System.out.println(MAX_ANZAHL);\n        // Für das Rätsel: Angenommen, die folgende Zeile wäre der Fehler:\n        MAX_ANZAHL = 5; // Korrigiere diese Zeile\n    }\n}`,
+                lineToEdit: 'MAX_ANZAHL = 5;',
+                correctAnswer: '// MAX_ANZAHL = 5;',
+                placeholder: "Korrigierte (auskommentierte) Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle28",
+                title: "Aufgabe 28: Fehlende schließende Klammer für Klasse",
+                description: "Jede öffnende geschweifte Klammer '{' benötigt eine passende schließende Klammer '}'. Hier fehlt die schließende Klammer für die gesamte Klasse. Gib die fehlende Klammer ein.",
+                codeSnippet: `public class KlassenKlammerFehler {\n    public static void main(String[] args) {\n        System.out.println("Wo ist die Klammer?");\n    }\n// Hier fehlt die schließende Klammer der Klasse`,
+                correctAnswer: '}',
+                placeholder: "Fehlende Klammer hier eingeben..."
+            },
+            {
+                id: "puzzle29",
+                title: "Aufgabe 29: Falscher Argumenttyp beim Methodenaufruf",
+                description: "Die Methode 'zeigeAlter' erwartet ein Argument vom Typ 'int'. Im Code wird jedoch ein String übergeben. Korrigiere den Methodenaufruf, sodass eine Ganzzahl übergeben wird.",
+                codeSnippet: `public class ArgTypFehler {\n    public static void zeigeAlter(int alter) {\n        System.out.println("Das Alter ist: " + alter);\n    }\n    public static void main(String[] args) {\n        zeigeAlter("25"); // Fehler hier\n    }\n}`,
+                lineToEdit: 'zeigeAlter("25");',
+                correctAnswer: 'zeigeAlter(25);',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            },
+            {
+                id: "puzzle30",
+                title: "Aufgabe 30: Fehlendes 'public' bei der Hauptklasse",
+                description: "In Java muss die Klasse, die die 'main'-Methode enthält und deren Name der Datei entspricht (z.B. 'MeineApp.java' enthält 'public class MeineApp'), als 'public' deklariert werden. Ergänze das Schlüsselwort.",
+                codeSnippet: `class MeineAnwendung { // Fehler hier, wenn Dateiname MeineAnwendung.java ist\n    public static void main(String[] args) {\n        System.out.println("Start der Anwendung");\n    }\n}`,
+                lineToEdit: 'class MeineAnwendung {',
+                correctAnswer: 'public class MeineAnwendung {',
+                placeholder: "Korrigierte Zeile hier eingeben..."
+            }
+            // Weitere Puzzles können hier hinzugefügt werden
+        ];
+
+        let currentPuzzleIndex = 0;
+        const puzzleArea = document.getElementById('puzzle-area');
+        const welcomeModal = document.getElementById('welcomeModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const startPuzzlesBtn = document.getElementById('startPuzzlesBtn');
+
+        function openWelcomeModal() {
+            if (welcomeModal) {
+                welcomeModal.style.display = 'block';
+            }
+        }
+
+        function closeWelcomeModalAndStart() {
+            if (welcomeModal) {
+                welcomeModal.style.display = 'none';
+            }
+            // Erstes Puzzle anzeigen, nachdem das Modal geschlossen wurde
+            displayPuzzle(currentPuzzleIndex);
+        }
+
+        if (closeModalBtn) {
+            closeModalBtn.onclick = closeWelcomeModalAndStart;
+        }
+        if (startPuzzlesBtn) {
+            startPuzzlesBtn.onclick = closeWelcomeModalAndStart;
+        }
+
+        // Optional: Modal schließen, wenn außerhalb geklickt wird
+        window.onclick = function(event) {
+            if (event.target == welcomeModal) {
+                closeWelcomeModalAndStart();
+            }
+        }
+
+        function displayPuzzle(index) {
+            puzzleArea.innerHTML = ''; // Vorheriges Puzzle löschen
+            if (index >= puzzles.length) {
+                puzzleArea.innerHTML = `
+                    <h2>Super! Alle Rätsel gelöst!</h2>
+                    <p>Du hast alle Syntax-Herausforderungen gemeistert. Gut gemacht!</p>
+                    <hr>
+                    <p><strong>Wenn ihr es bis hier geschafft habt, seid ihr super.</strong></p>
+                    <p>Versucht bitte den anderen zu helfen.</p>
+                    <p>Ansonsten dürft ihr an euren Java-Projekten weiterarbeiten.</p>
+                `;
+                return;
+            }
+            
+            const puzzleData = puzzles[index];
+            const puzzleDiv = document.createElement('div');
+            puzzleDiv.classList.add('puzzle-container');
+            puzzleDiv.id = puzzleData.id;
+
+            let inputHtml;
+            if (puzzleData.lineToEdit) {
+                inputHtml = `<input type="text" id="userInput-${puzzleData.id}" value="${escapeHTML(puzzleData.lineToEdit)}">`;
+            } else {
+                inputHtml = `<input type="text" id="userInput-${puzzleData.id}" placeholder="${puzzleData.placeholder}">`;
+            }
+
+            puzzleDiv.innerHTML = `
+                <div class="puzzle">
+                    <h2>${puzzleData.title}</h2>
+                    <p>${puzzleData.description}</p>
+                    <pre>${escapeHTML(puzzleData.codeSnippet)}</pre>
+                    ${inputHtml}
+                    <button onclick="checkAnswer('${puzzleData.id}', ${index})">Absenden</button>
+                    <button id="solutionBtn-${puzzleData.id}" class="solution-btn hidden" onclick="showSolution('${puzzleData.id}', ${index})">Lösung anzeigen</button>
+                    <button id="nextBtn-${puzzleData.id}" class="next-btn hidden" onclick="nextPuzzle()">Nächstes Rätsel</button>
+                    <div class="result" id="result-${puzzleData.id}"></div>
+                </div>
+            `;
+            puzzleArea.appendChild(puzzleDiv);
+        }
+
+        function checkAnswer(puzzleId, index) {
+            const userInput = document.getElementById(`userInput-${puzzleId}`).value.trim();
+            const resultDiv = document.getElementById(`result-${puzzleId}`);
+            const correctAnswer = puzzles[index].correctAnswer;
+            const solutionBtn = document.getElementById(`solutionBtn-${puzzleId}`);
+
+            if (userInput === correctAnswer) {
+                resultDiv.textContent = 'Richtig! Sehr gut gemacht.';
+                resultDiv.style.color = 'green';
+                document.getElementById(`nextBtn-${puzzleId}`).classList.remove('hidden');
+                document.querySelector(`#${puzzleId} input[type="text"]`).disabled = true;
+                document.querySelector(`#${puzzleId} button[onclick^="checkAnswer"]`).disabled = true;
+                solutionBtn.classList.add('hidden'); // Lösung-Button ausblenden, wenn richtig
+            } else {
+                resultDiv.textContent = 'Leider falsch. Versuche es nochmal oder lass dir die Lösung anzeigen.';
+                resultDiv.style.color = 'red';
+                solutionBtn.classList.remove('hidden'); // Lösung-Button einblenden
+            }
+        }
+
+        function showSolution(puzzleId, index) {
+            const resultDiv = document.getElementById(`result-${puzzleId}`);
+            const correctAnswer = puzzles[index].correctAnswer;
+            const userInputField = document.getElementById(`userInput-${puzzleId}`);
+
+            userInputField.value = correctAnswer; // Lösung ins Feld eintragen
+            userInputField.disabled = true;
+
+            resultDiv.textContent = `Die korrekte Antwort ist: ${correctAnswer}`;
+            resultDiv.style.color = 'blue'; // Andere Farbe für angezeigte Lösung
+
+            document.querySelector(`#${puzzleId} button[onclick^="checkAnswer"]`).disabled = true;
+            document.getElementById(`solutionBtn-${puzzleId}`).classList.add('hidden'); // Lösung-Button selbst ausblenden
+            document.getElementById(`nextBtn-${puzzleId}`).classList.remove('hidden'); // Nächstes Rätsel Button einblenden
+        }
+
+        function nextPuzzle() {
+            currentPuzzleIndex++;
+            displayPuzzle(currentPuzzleIndex);
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>"']/g, function (match) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[match];
+            });
+        }
+
+        // Modal beim Laden der Seite anzeigen
+        openWelcomeModal();
+        // Der Aufruf displayPuzzle(currentPuzzleIndex); wird jetzt in closeWelcomeModalAndStart() gemacht.
+    </script>
+</body>
+</html>
